@@ -20,8 +20,8 @@ help:
 
 .PHONY: build-push
 build-push:
-	docker login ghcr.io
-	docker buildx build --push --platform linux/arm64/v8,linux/amd64 --tag patcas/misp_bot:latest .
+	docker login
+	docker buildx build --push --tag patcas/misp_bot:latest .
 
 .PHONY: run
 run:

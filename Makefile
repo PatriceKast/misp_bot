@@ -21,19 +21,19 @@ help:
 .PHONY: build-push
 build-push:
 	docker login ghcr.io
-	docker buildx build --push --platform linux/arm64/v8,linux/amd64 --tag ghcr.io/cloud-py-api/misp_bot:latest .
+	docker buildx build --push --platform linux/arm64/v8,linux/amd64 --tag ghcr.io/kastpatrice/misp_bot:latest .
 
 .PHONY: run
 run:
 	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:unregister misp_bot --silent --force || true
 	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:register misp_bot --force-scopes \
-		--info-xml https://raw.githubusercontent.com/cloud-py-api/nc_py_api/main/examples/as_app/misp_bot/appinfo/info.xml
+		--info-xml https://raw.githubusercontent.com/PatriceKast/NextCloud-Bot-MISP-IoC-Importer/refs/heads/main/appinfo/info.xml
 
 .PHONY: run28
 run28:
 	docker exec master-stable28-1 sudo -u www-data php occ app_api:app:unregister misp_bot --silent --force || true
 	docker exec master-stable28-1 sudo -u www-data php occ app_api:app:register misp_bot --force-scopes \
-		--info-xml https://raw.githubusercontent.com/cloud-py-api/nc_py_api/main/examples/as_app/misp_bot/appinfo/info.xml
+		--info-xml https://raw.githubusercontent.com/PatriceKast/NextCloud-Bot-MISP-IoC-Importer/refs/heads/main/appinfo/info.xml
 
 .PHONY: register
 register:

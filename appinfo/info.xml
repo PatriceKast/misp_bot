@@ -17,15 +17,10 @@
 	<dependencies>
 		<nextcloud min-version="28" max-version="30"/>
 	</dependencies>
-	<external-app>
-		<docker-install>
-			<registry>ghcr.io</registry>
-			<image>kastpatrice/misp_bot</image>
-			<image-tag>latest</image-tag>
-		</docker-install>
-		<scopes>
-			<value>TALK</value>
-			<value>misp_bot</value>
-		</scopes>
-	</external-app>
+
+	<repair-steps>
+		<install>
+			<step>OCA\MISPBot\Migration\InstallBot</step>
+		</install>
+	</repair-steps>
 </info>

@@ -1,50 +1,93 @@
-.DEFAULT_GOAL := help
+# SPDX-FileCopyrightText: 2016 Nextcloud GmbH and Nextcloud contributors
+# SPDX-License-Identifier: AGPL-3.0-or-later
 
-.PHONY: help
-help:
-	@echo "Welcome to the MISP Bot. Please use \`make <target>\` where <target> is one of"
-	@echo " "
-	@echo "  Next commands are only for dev environment with nextcloud-docker-dev!"
-	@echo "  They should run from the host you are developing on(with activated venv) and not in the container with Nextcloud!"
-	@echo "  "
-	@echo "  build-push        build image and upload to ghcr.io"
-	@echo "  "
-	@echo "  run               install MISPBot for Nextcloud Last"
-	@echo "  run28             install MISPBot for Nextcloud 28"
-	@echo "  "
-	@echo "  For development of this example use PyCharm run configurations. Development is always set for last Nextcloud."
-	@echo "  First run 'MISPBot' and then 'make registerXX', after that you can use/debug/develop it and easy test."
-	@echo "  "
-	@echo "  register          perform registration of running 'MISPBot' into the 'manual_install' deploy daemon."
-	@echo "  register28        perform registration of running 'MISPBot' into the 'manual_install' deploy daemon."
+# Makefile for building the project
 
-.PHONY: build-push
-build-push:
-	docker login
-	docker buildx build --push --tag patcas/misp_bot:latest .
+app_name=misp_bot
 
-.PHONY: run
-run:
-	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:unregister misp_bot --silent --force || true
-	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:register misp_bot --force-scopes \
-		--info-xml https://raw.githubusercontent.com/PatriceKast/NextCloud-Bot-MISP-IoC-Importer/refs/heads/main/appinfo/info.xml
+project_dir=$(CURDIR)/../$(app_name)
+build_dir=$(CURDIR)/build/artifacts
+appstore_dir=$(build_dir)/appstore
+source_dir=$(build_dir)/source
+sign_dir=$(build_dir)/sign
+package_name=$(app_name)
+cert_dir=$(HOME)/.nextcloud/certificates
+version+=main
+composer=$(shell which composer 2> /dev/null)
 
-.PHONY: run28
-run28:
-	docker exec master-stable28-1 sudo -u www-data php occ app_api:app:unregister misp_bot --silent --force || true
-	docker exec master-stable28-1 sudo -u www-data php occ app_api:app:register misp_bot --force-scopes \
-		--info-xml https://raw.githubusercontent.com/PatriceKast/NextCloud-Bot-MISP-IoC-Importer/refs/heads/main/appinfo/info.xml
+all: appstore
 
-.PHONY: register
-register:
-	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:unregister misp_bot --silent --force || true
-	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:register misp_bot manual_install --json-info \
-  "{\"id\":\"misp_bot\",\"name\":\"MISPBot\",\"daemon_config_name\":\"manual_install\",\"version\":\"1.0.0\",\"secret\":\"12345\",\"port\":9032,\"scopes\":[\"TALK\", \"misp_bot\"]}" \
-  --force-scopes --wait-finish
+# Dev env management
+dev-setup: clean
 
-.PHONY: register28
-register28:
-	docker exec master-stable28-1 sudo -u www-data php occ app_api:app:unregister misp_bot --force || true
-	docker exec master-stable28-1 sudo -u www-data php occ app_api:app:register misp_bot manual_install --json-info \
-  "{\"id\":\"misp_bot\",\"name\":\"MISPBot\",\"daemon_config_name\":\"manual_install\",\"version\":\"1.0.0\",\"secret\":\"12345\",\"port\":9032,\"scopes\":[\"TALK\", \"misp_bot\"]}" \
-  --force-scopes --wait-finish
+# Installs and updates the composer dependencies. If composer is not installed
+# a copy is fetched from the web
+composer:
+ifeq (, $(composer))
+	@echo "No composer command available, downloading a copy from the web"
+	mkdir -p $(build_tools_directory)
+	curl -sS https://getcomposer.org/installer | php
+	mv composer.phar $(build_tools_directory)
+	php $(build_tools_directory)/composer.phar install --prefer-dist
+	php $(build_tools_directory)/composer.phar update --prefer-dist
+else
+	composer install --prefer-dist
+	composer update --prefer-dist
+endif
+
+release: appstore create-tag
+
+create-tag:
+	git tag -a v$(version) -m "Tagging the $(version) release."
+	git push origin v$(version)
+
+clean:
+	rm -rf $(build_dir)
+
+appstore: dev-setup
+	mkdir -p $(sign_dir)
+	rsync -a \
+	--exclude=/.git \
+	--exclude=/.github \
+	--exclude=/.tx \
+	--exclude=/build \
+	--exclude=/docs \
+	--exclude=/node_modules \
+	--exclude=/src \
+	--exclude=/tests \
+	--exclude=/vendor \
+	--exclude=/vendor-bin \
+	--exclude=/.eslintrc.js \
+	--exclude=/.l10nignore \
+	--exclude=/.php-cs-fixer.cache \
+	--exclude=/.php-cs-fixer.dist.php \
+	--exclude=/.gitattributes \
+	--exclude=/.gitignore \
+	--exclude=/.scrutinizer.yml \
+	--exclude=/.travis.yml \
+	--exclude=/babel.config.js \
+	--exclude=/composer.json \
+	--exclude=/composer.lock \
+	--exclude=/Makefile \
+	--exclude=/package.json \
+	--exclude=/package-lock.json \
+	--exclude=/psalm.xml \
+	--exclude=/README.md \
+	--exclude=/rector.php \
+	--exclude=/stylelint.config.js \
+	--exclude=/webpack.js \
+	$(project_dir)/ $(sign_dir)/$(app_name)
+	@if [ -f $(cert_dir)/$(app_name).key ]; then \
+		echo "Signing app files…"; \
+		php ../../occ integrity:sign-app \
+			--privateKey=$(cert_dir)/$(app_name).key\
+			--certificate=$(cert_dir)/$(app_name).crt\
+			--path=$(sign_dir)/$(app_name); \
+	fi
+	tar -czf $(build_dir)/$(app_name).tar.gz \
+		-C $(sign_dir) $(app_name)
+	@if [ -f $(cert_dir)/$(app_name).key ]; then \
+		echo "Signing package…"; \
+		openssl dgst -sha512 -sign $(cert_dir)/$(app_name).key $(build_dir)/$(app_name).tar.gz | openssl base64; \
+	fi
+

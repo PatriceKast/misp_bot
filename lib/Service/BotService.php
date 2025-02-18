@@ -59,10 +59,10 @@ class BotService {
 		$l = $this->l10nFactory->get('misp_bot', $lang);
 
 		$event = new BotInstallEvent(
-			$l->t('Call summary'),
+			'MISP IoC Importer Bot',
 			$secret . str_replace('_', '', $lang),
 			'nextcloudapp://' . Application::APP_ID . '/' . $lang,
-			$l->t('Call summary (%s)', $langName) . ' - ' . $l->t('The call summary bot posts an overview message after the call listing all participants and outlining tasks'),
+			$l->t('bot_description'),
 			features: 4, // EVENT
 		);
 		try {

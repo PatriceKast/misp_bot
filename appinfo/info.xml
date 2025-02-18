@@ -11,6 +11,9 @@
 	<author mail="patrice@kasts.ch" homepage="https://github.com/PatriceKast">Patrice Kast</author>
 	<namespace>MISPBot</namespace>
 	<category>tools</category>
+	<website>https://github.com/PatriceKast/misp-nextcloud-bot</website>
+	<bugs>https://github.com/PatriceKast/misp-nextcloud-bot/issues</bugs>
+	<repository type="git">https://github.com/PatriceKast/misp-nextcloud-bot</repository>
 	<dependencies>
 		<nextcloud min-version="28" max-version="30"/>
 	</dependencies>

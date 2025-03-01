@@ -27,7 +27,6 @@ class BotInvokeListener implements IEventListener {
 	public function __construct(
 		protected ITimeFactory $timeFactory,
 		protected IFactory $l10nFactory,
-		protected LogEntryMapper $logEntryMapper,
 		protected ExtractionService $extractionService,
 		protected IConfig $config,
 		protected LoggerInterface $logger,

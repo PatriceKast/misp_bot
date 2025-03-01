@@ -74,7 +74,7 @@ class BotInvokeListener implements IEventListener {
 				}
 				else {
 					#misp_event = misp_talk_bot_submit_iocs(ip_extraction['public_ips'])
-					$reply_message = $l->t('success_ip_submission (%s)', implode("\n- ", $extractedIPs['private_ips']));
+					$reply_message = $l->t('success_ip_submission (%s)', implode("\n- ", $extractedIPs['public_ips']));
 				}
 
 				$event->addReaction(($has_error ? '👎' : '👍'));

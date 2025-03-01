@@ -3,8 +3,7 @@
 declare(strict_types=1);
 
 /**
- * SPDX-FileCopyrightText: 2025 Nextcloud GmbH and Nextcloud contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * This migration is used to set the feature type to 4 after Installation of the Bot (not needed after NextCloud v27, since feature already correctly passed to nextcloud on BotInstallEvent)
  */
 
 namespace OCA\MISPBot\Migration;
@@ -46,12 +45,12 @@ class Version1000Date20230719061613 extends SimpleMigrationStep {
 			)));
 
 		$result = $select->executeQuery();
-		while ($row = $result->fetch()) {
+		while ($row = $result->fetch()) { // loop through all versions of the installed bot (in all available languages)
 			$urlParts = explode('/', $row['url']);
 			$url = 'nextcloudapp://misp_bot/' . array_pop($urlParts);
 			$update->setParameter('url', $url)
 				->setParameter('url_hash', sha1($url))
-				->setParameter('features', 4, IQueryBuilder::PARAM_INT)
+				->setParameter('features', 4, IQueryBuilder::PARAM_INT) // Feature=4 (event) - Bot is invoked via PHP event OCA\Talk\Events\BotInvokeEvent; Source (https://nextcloud-talk.readthedocs.io/en/latest/constants/#bot-features)
 				->setParameter('id', $row['id'], IQueryBuilder::PARAM_INT);
 			$result1 = $update->executeStatement();
 		}

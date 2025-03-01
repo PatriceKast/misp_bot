@@ -15,7 +15,10 @@ This project provides a NextCloud Talk bot that processes messages containing IP
 - Secure API integration with MISP
 - Configurable settings for bot behavior and API endpoints
 
-## Installation (Manual)
+## Development
+The following section shall provide support during development of the bot.
+
+### Installation (Manual)
 Clone this repository to the following data directory of NextCloud:
 ```
 nextcloud/custom_apps/
@@ -29,4 +32,15 @@ docker exec -it --user 33 nextcloud-docker-app-1 php occ app:enable misp_bot
 To list all installed Talk Bots, use the following command:
 ```
 docker exec -it --user 33 nextcloud-docker-app-1 php occ talk:bot:list
+```
+
+### Revert Installation
+To revert performed DB migrations of the Bot for testing, use the following SQL queries:
+```
+DELETE FROM oc_migrations WHERE app LIKE 'misp_bot';
+DELETE FROM oc_talk_bots_server WHERE name LIKE 'MISP IoC Importer Bot';
+```
+To disable the installed bot, use:
+```
+docker exec -it --user 33 nextcloud-docker-app-1 php occ app:enable misp_bot
 ```

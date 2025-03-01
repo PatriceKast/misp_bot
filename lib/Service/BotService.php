@@ -58,7 +58,7 @@ class BotService {
 
 		$l = $this->l10nFactory->get('misp_bot', $lang);
 
-		$event = new BotInstallEvent(
+		$event = new BotInstallEvent( // Source: https://github.com/nextcloud/spreed/blob/f82d97a63730bb3f3219b94d4d4057312f040a6b/lib/Events/BotInstallEvent.php#L14
 			'MISP IoC Importer Bot',
 			$secret . str_replace('_', '', $lang),
 			'nextcloudapp://' . Application::APP_ID . '/' . $lang,

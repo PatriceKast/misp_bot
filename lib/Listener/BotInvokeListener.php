@@ -64,16 +64,21 @@ class BotInvokeListener implements IEventListener {
 				$extractedIPs = $this->extractionService->extractIPv4($message);
 
 				$reply_message = null;
+				$has_error = false;
 				if (len(ip_extraction['private_ips']) != 0) {
+					$has_error = true;
 					$reply_message = $l->t('error_private_ips');
 				}
 				else if (len(ip_extraction['public_ips']) == 0) {
+					$has_error = true;
 					$reply_message = $l->t('error_private_ips (%s)', implode("\n- ", $ip_extraction['public_ips']));
 				}
 				else {
 					#misp_event = misp_talk_bot_submit_iocs(ip_extraction['public_ips'])
 					$reply_message = $l->t('success_ip_submission (%s)', implode("\n- ", $ip_extraction['private_ips']));
 				}
+
+				$event->addReaction(($has_error ? '👎' : '👍'));
 
 				// Class: https://github.com/nextcloud/spreed/blob/954d41c4b8ebee7ad1dbad2d128279e077de08a1/lib/Events/BotInvokeEvent.php#L104
 				// Function: addAnswer(string $message, bool|int $reply = false, bool $silent = false, string $referenceId = '')

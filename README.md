@@ -14,3 +14,19 @@ This project provides a NextCloud Talk bot that processes messages containing IP
 - Provides logging for tracking submissions
 - Secure API integration with MISP
 - Configurable settings for bot behavior and API endpoints
+
+## Installation (Manual)
+Clone this repository to the following data directory of NextCloud:
+```
+nextcloud/custom_apps/
+```
+
+Then in case of a dockerized nextcloud, use the following command to install it:
+```
+docker exec -it --user 33 nextcloud-docker-app-1 php occ app:enable misp_bot
+```
+
+To list all installed Talk Bots, use the following command:
+```
+docker exec -it --user 33 nextcloud-docker-app-1 php occ talk:bot:list
+```

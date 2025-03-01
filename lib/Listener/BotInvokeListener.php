@@ -81,7 +81,7 @@ class BotInvokeListener implements IEventListener {
 
 				// Class: https://github.com/nextcloud/spreed/blob/954d41c4b8ebee7ad1dbad2d128279e077de08a1/lib/Events/BotInvokeEvent.php#L104
 				// Function: addAnswer(string $message, bool|int $reply = false, bool $silent = false, string $referenceId = '')
-				$event->addAnswer($reply_message, true, false, $data['object']['id']);
+				$event->addAnswer('[BOT] '.$reply_message, true, false, $data['object']['id']);
 			}
 		}
 	}

@@ -42,5 +42,5 @@ DELETE FROM oc_talk_bots_server WHERE name LIKE 'MISP IoC Importer Bot';
 ```
 To disable the installed bot, use:
 ```
-docker exec -it --user 33 nextcloud-docker-app-1 php occ app:enable misp_bot
+docker exec -it --user 33 nextcloud-docker-app-1 php occ app:disable misp_bot
 ```

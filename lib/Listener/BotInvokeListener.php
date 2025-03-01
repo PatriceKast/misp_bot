@@ -64,17 +64,17 @@ class BotInvokeListener implements IEventListener {
 
 				$reply_message = null;
 				$has_error = false;
-				if (len(ip_extraction['private_ips']) != 0) {
+				if (sizeof($extractedIPs['private_ips']) != 0) {
 					$has_error = true;
-					$reply_message = $l->t('error_private_ips');
+					$reply_message = $l->t('error_private_ips (%s)', implode("\n- ", $extractedIPs['private_ips']));
 				}
-				else if (len(ip_extraction['public_ips']) == 0) {
+				else if (sizeof($extractedIPs['public_ips']) == 0) {
 					$has_error = true;
-					$reply_message = $l->t('error_private_ips (%s)', implode("\n- ", $ip_extraction['public_ips']));
+					$reply_message = $l->t('error_no_ips_found');
 				}
 				else {
 					#misp_event = misp_talk_bot_submit_iocs(ip_extraction['public_ips'])
-					$reply_message = $l->t('success_ip_submission (%s)', implode("\n- ", $ip_extraction['private_ips']));
+					$reply_message = $l->t('success_ip_submission (%s)', implode("\n- ", $extractedIPs['private_ips']));
 				}
 
 				$event->addReaction(($has_error ? '👎' : '👍'));

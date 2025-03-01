@@ -22,7 +22,7 @@ class ExtractionService {
 		$ipv4_pattern = '/\b(?:\d{1,3}\.){3}\d{1,3}\b/';
 
 		// Find all matches in the given payload
-		preg_match_all($ipv4_pattern, $payload, $matches);
+		preg_match_all($ipv4_pattern, $message, $matches);
 		$potential_ips = $matches[0];
 	
 		// Anonymous function to classify IPs
